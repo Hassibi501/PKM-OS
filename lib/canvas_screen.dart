@@ -45,7 +45,12 @@ class _CanvasScreenState extends State<CanvasScreen> {
               return Positioned(
                 left: node.x,
                 top: node.y,
-                child: NodeWidget(node: node),
+                child: NodeWidget(
+                  node: node,
+                  onDragUpdate: (details) =>
+                      _onNodeDragUpdate(node.id, details),
+                  onDoubleTap: () => _editNodeContent(node.id),
+                ),
               );
             }),
           ],
@@ -66,6 +71,66 @@ class _CanvasScreenState extends State<CanvasScreen> {
           nodeType: NodeType.thought,
         ),
       );
+    });
+  }
+
+  void _onNodeDragUpdate(String nodeId, DragUpdateDetails details) {
+    setState(() {
+      final index = _nodes.indexWhere((node) => node.id == nodeId);
+
+      final oldNode = _nodes[index];
+
+      final newNode = CanvasNode(
+        id: oldNode.id,
+        content: oldNode.content,
+        x: oldNode.x + details.delta.dx,
+        y: oldNode.y + details.delta.dy,
+        nodeType: oldNode.nodeType,
+      );
+
+      _nodes[index] = newNode;
+    });
+  }
+
+  Future<void> _editNodeContent(String nodeId) async {
+    print("Double-tapped node: $nodeId");
+
+    final index = _nodes.indexWhere((node) => node.id == nodeId);
+    final oldNode = _nodes[index];
+
+    final newContent = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        final controller = TextEditingController(text: oldNode.content);
+        return AlertDialog(
+          title: Text("Edit Content"),
+          content: TextField(controller: controller),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+
+    setState(() {
+      if (newContent != null) {
+        final newNode = CanvasNode(
+          id: oldNode.id,
+          content: newContent,
+          x: oldNode.x,
+          y: oldNode.y,
+          nodeType: oldNode.nodeType,
+        );
+
+        _nodes[index] = newNode;
+      }
     });
   }
 }
