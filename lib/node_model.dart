@@ -14,4 +14,24 @@ class CanvasNode {
     required this.y,
     required this.nodeType,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "content": content,
+      'x': x,
+      'y': y,
+      "nodeType": nodeType.name,
+    };
+  }
+
+  factory CanvasNode.fromJson(Map<String, dynamic> json) {
+    return CanvasNode(
+      id: json["id"],
+      content: json["content"],
+      x: json['x'],
+      y: json['y'],
+      nodeType: NodeType.values.byName(json["nodeType"]),
+    );
+  }
 }

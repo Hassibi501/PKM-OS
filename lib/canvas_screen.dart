@@ -93,8 +93,6 @@ class _CanvasScreenState extends State<CanvasScreen> {
   }
 
   Future<void> _editNodeContent(String nodeId) async {
-    print("Double-tapped node: $nodeId");
-
     final index = _nodes.indexWhere((node) => node.id == nodeId);
     final oldNode = _nodes[index];
 
